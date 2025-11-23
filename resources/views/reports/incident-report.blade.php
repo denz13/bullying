@@ -26,6 +26,26 @@
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 8px;
+            position: relative;
+        }
+
+        .student-image-container {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 120px;
+            height: 120px;
+            border: 2px solidrgb(255, 255, 255);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff;
+        }
+
+        .student-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .report-date {
@@ -243,7 +263,7 @@
         }
 
         .footer {
-            margin-top: 15px;
+            margin-top: 60px;
             padding-top: 10px;
             border-top: 1px solid #ddd;
             text-align: center;
@@ -351,8 +371,15 @@
         @foreach ($incidents as $index => $incident)
             <div class="case-report">
                 <div class="report-header">
-                    <div class="report-date">{{ \Carbon\Carbon::now()->format('m/d/y, g:i A') }}</div>
-                    <div class="system-name">Guidance Office Case Resolution System</div>
+                    <div>
+                        <div class="report-date">{{ \Carbon\Carbon::now()->format('m/d/y, g:i A') }}</div>
+                        <div class="system-name">Guidance Office Case Resolution System</div>
+                    </div>
+                    <div class="student-image-container">
+                        @if ($incident->student_image)
+                            <img src="{{ $incident->student_image }}" alt="{{ $incident->student }}">
+                        @endif
+                    </div>
                 </div>
 
                 <div class="main-title">
@@ -494,8 +521,12 @@
         @endif
     @else
         <div class="report-header">
-            <div class="report-date">{{ \Carbon\Carbon::now()->format('m/d/y, g:i A') }}</div>
-            <div class="system-name">Guidance Office Case Resolution System</div>
+            <div>
+                <div class="report-date">{{ \Carbon\Carbon::now()->format('m/d/y, g:i A') }}</div>
+                <div class="system-name">Guidance Office Case Resolution System</div>
+            </div>
+            <div class="student-image-container">
+            </div>
         </div>
 
         <div class="main-title">
