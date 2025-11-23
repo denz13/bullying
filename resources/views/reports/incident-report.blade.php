@@ -14,268 +14,501 @@
         body {
             font-family: Arial, sans-serif;
             font-size: 12px;
-            color: #333;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #4f46e5;
-            padding-bottom: 15px;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            color: #1f2937;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            font-size: 14px;
-            color: #6b7280;
-        }
-
-        .filters {
-            margin-bottom: 20px;
+            color: #000;
             padding: 15px;
-            background-color: #f9fafb;
-            border-radius: 8px;
-            border-left: 4px solid #4f46e5;
-        }
-
-        .filters h3 {
-            font-size: 14px;
-            color: #1f2937;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .filter-item {
-            display: inline-block;
+            margin-left: 20px;
             margin-right: 20px;
-            margin-bottom: 5px;
+            line-height: 1.5;
         }
 
-        .filter-item strong {
-            color: #4b5563;
-            margin-right: 5px;
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
         }
 
-        .filter-item span {
-            color: #1f2937;
+        .report-date {
+            font-size: 12px;
+            color: #333;
+            font-weight: 600;
         }
 
-        .no-filters {
-            color: #6b7280;
-            font-style: italic;
+        .system-name {
+            font-size: 12px;
+            color: #333;
+            font-weight: 700;
         }
 
-        table {
+        .main-title {
+            text-align: center;
+            margin: 10px 0 8px 0;
+        }
+
+        .main-title h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a4b84;
+            margin-bottom: 3px;
+        }
+
+        .main-title p {
+            font-size: 14px;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .title-divider {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: #fff;
+            height: 2px;
+            background-color: #1a4b84;
+            margin: 10px 0 15px 0;
         }
 
-        thead {
-            background-color: #4f46e5;
-            color: #fff;
+        .section {
+            margin-bottom: 15px;
         }
 
-        th {
-            padding: 12px 8px;
-            text-align: left;
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a4b84;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #1a4b84;
+            padding-bottom: 3px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .info-item {
+            margin-bottom: 6px;
+        }
+
+        .info-label {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0;
+            font-size: 12px;
+            display: inline;
+        }
+
+        .info-value {
+            color: #000;
+            font-size: 13px;
             font-weight: 600;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            display: inline;
+            margin-left: 5px;
         }
 
-        td {
-            padding: 10px 8px;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 11px;
+        .situation-content,
+        .resolution-content {
+            color: #000;
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.6;
+            margin-top: 5px;
+            text-align: justify;
         }
 
-        tbody tr:hover {
-            background-color: #f9fafb;
+        .acknowledgments {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-left: 4px solid #1a4b84;
+            margin: 12px 0;
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.6;
+            color: #000;
         }
 
-        tbody tr:last-child td {
+        .acknowledgments strong {
+            font-weight: 700;
+            font-size: 13px;
+            color: #1a4b84;
+        }
+
+        .signatures-container {
+            display: table !important;
+            width: 100% !important;
+            margin-top: 15px;
+            margin-bottom: 0;
+            table-layout: fixed;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .signature-block {
+            text-align: center;
+            width: 50%;
+            display: table-cell !important;
+            vertical-align: top !important;
+            padding-right: 15px;
+            height: auto;
+        }
+        
+        .signature-block:last-child {
+            padding-right: 0;
+            padding-left: 15px;
+        }
+
+        .signature-space {
+            min-height: 50px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .signature-name {
+            font-weight: 700;
+            color: #000;
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 13px;
+            display: block;
+            min-height: 16px;
+            line-height: 16px;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 1px solid #333;
             border-bottom: none;
+            border-left: none;
+            border-right: none;
+            margin-top: 0;
+            margin-bottom: 5px;
+            padding-top: 0;
+            padding-bottom: 0;
+            width: 100%;
+            min-height: 1px;
+            height: 1px;
+            display: block;
+            overflow: visible;
+            clear: both;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 10px;
+        .signature-label {
+            color: #333;
+            font-size: 11px;
+            margin-top: 0;
             font-weight: 600;
-            text-transform: capitalize;
+            display: block;
+            text-align: center;
         }
 
-        .badge-pending {
-            background-color: #fef3c7;
-            color: #92400e;
+        .counselor-signature {
+            text-align: center;
+            margin-top: 15px;
         }
 
-        .badge-investigating {
-            background-color: #dbeafe;
-            color: #1e40af;
+        .counselor-signature-block {
+            display: inline-block;
+            width: 60%;
         }
 
-        .badge-resolved {
-            background-color: #d1fae5;
-            color: #065f46;
+        .counselor-signature .signature-space {
+            min-height: 50px;
+            margin-bottom: 8px;
+            display: block;
         }
 
-        .badge-closed {
-            background-color: #f3f4f6;
-            color: #374151;
+        .counselor-signature .signature-name {
+            text-align: center;
+            font-weight: 700;
+            color: #000;
+            font-size: 13px;
+            margin-top: 0;
+            margin-bottom: 4px;
         }
 
-        .badge-low {
-            background-color: #f3f4f6;
-            color: #374151;
+        .counselor-signature .signature-line {
+            border-top: 1px solid #333;
+            margin-top: 0;
+            margin-bottom: 4px;
+            padding-top: 0;
+            width: 100%;
+            height: 1px;
         }
 
-        .badge-medium {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        .badge-high {
-            background-color: #fed7aa;
-            color: #9a3412;
-        }
-
-        .badge-urgent {
-            background-color: #fee2e2;
-            color: #991b1b;
+        .counselor-signature .signature-label {
+            text-align: center;
+            color: #333;
+            font-size: 11px;
+            margin-top: 0;
+            font-weight: 600;
         }
 
         .footer {
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 1px solid #e5e7eb;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
             text-align: center;
-            color: #6b7280;
-            font-size: 10px;
+            color: #333;
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .case-report {
+            page-break-after: always;
+            margin-bottom: 20px;
+        }
+
+        .case-report:last-child {
+            page-break-after: auto;
+        }
+
+        .filters-summary {
+            margin-bottom: 20px;
+            padding: 12px;
+            background-color: #f0f9ff;
+            border-left: 4px solid #1a4b84;
+            font-size: 11px;
+        }
+
+        .filters-summary strong {
+            color: #1a4b84;
         }
 
         .no-data {
             text-align: center;
-            padding: 40px;
-            color: #6b7280;
+            padding: 60px 20px;
+            color: #666;
             font-style: italic;
+            font-size: 14px;
         }
 
-        .summary {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #eff6ff;
-            border-radius: 8px;
-            border-left: 4px solid #3b82f6;
-        }
-
-        .summary p {
-            margin: 5px 0;
-            color: #1e40af;
-            font-weight: 500;
+        @media print {
+            .case-report {
+                page-break-after: always;
+            }
+            .case-report:last-child {
+                page-break-after: auto;
+            }
+            .signatures-container {
+                display: table !important;
+                width: 100% !important;
+                table-layout: fixed !important;
+                border-collapse: separate !important;
+                border-spacing: 0 !important;
+            }
+            .signature-block {
+                display: table-cell !important;
+                width: 50% !important;
+                vertical-align: top !important;
+                text-align: center !important;
+            }
+            .signature-space {
+                min-height: 50px !important;
+                margin-bottom: 8px !important;
+                display: block !important;
+            }
+            .signature-name {
+                margin-top: 0 !important;
+                margin-bottom: 5px !important;
+                min-height: 18px !important;
+                line-height: 18px !important;
+                text-align: center !important;
+            }
+            .signature-line {
+                border-top: 1px solid #333 !important;
+                margin-top: 0 !important;
+                margin-bottom: 5px !important;
+                width: 100% !important;
+                height: 1px !important;
+                display: block !important;
+            }
+            .signature-label {
+                text-align: center !important;
+            }
+            body {
+                color: #000 !important;
+                margin-left: 20px !important;
+                margin-right: 20px !important;
+            }
+            .info-value {
+                font-weight: 600 !important;
+                color: #000 !important;
+            }
+            .info-label {
+                font-weight: 700 !important;
+                color: #000 !important;
+            }
+            .situation-content,
+            .resolution-content {
+                font-weight: 500 !important;
+                color: #000 !important;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Incident Report</h1>
-        <p>Generated on {{ \Carbon\Carbon::now()->format('F d, Y h:i A') }}</p>
-    </div>
+    @if ($incidents->count() > 0)
+        @foreach ($incidents as $index => $incident)
+            <div class="case-report">
+                <div class="report-header">
+                    <div class="report-date">{{ \Carbon\Carbon::now()->format('m/d/y, g:i A') }}</div>
+                    <div class="system-name">Guidance Office Case Resolution System</div>
+                </div>
 
-    @php
-        $hasFilters = !empty($filters['status']) || !empty($filters['date_from']) || !empty($filters['date_to']) || !empty($filters['search']);
-    @endphp
+                <div class="main-title">
+                    <h1>Guidance Office Case Resolution Report</h1>
+                    <p>Immaculate Conception School of Naic Inc.</p>
+                    <p>Student Support and Development</p>
+                </div>
 
-    @if ($hasFilters)
-        <div class="filters">
-            <h3>Applied Filters:</h3>
-            <div>
-                @if (!empty($filters['status']))
-                    <div class="filter-item">
-                        <strong>Status:</strong>
-                        <span>{{ ucfirst($filters['status']) }}</span>
+                <div class="title-divider"></div>
+
+                <div class="section">
+                    <div class="section-title">Student Information</div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Student Name:</span>
+                            <span class="info-value">{{ $incident->student }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Department:</span>
+                            <span class="info-value">{{ $incident->department ?? '—' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Grade Level:</span>
+                            <span class="info-value">{{ $incident->grade_section ?? '—' }}</span>
+                        </div>
                     </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Case Details</div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Case ID:</span>
+                            <span class="info-value">CASE-{{ str_pad($incident->id, 3, '0', STR_PAD_LEFT) }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Case Type:</span>
+                            <span class="info-value">{{ $incident->incident_type }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Date of Incident:</span>
+                            <span class="info-value">{{ \Carbon\Carbon::parse($incident->date_reported)->format('m/d/Y') }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Status:</span>
+                            <span class="info-value">{{ ucfirst($incident->status) }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Priority:</span>
+                            <span class="info-value">{{ ucfirst($incident->priority) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Situation Overview</div>
+                    <div class="situation-content">
+                        Incident reported on {{ \Carbon\Carbon::parse($incident->date_reported)->format('F d, Y') }}. 
+                        Status: {{ ucfirst($incident->status) }}. 
+                        Priority level: {{ ucfirst($incident->priority) }}.
+                        @if (!empty($incident->remarks))
+                            <br>Remarks: {{ $incident->remarks }}
+                        @endif
+                    </div>
+                </div>
+
+                <!-- <div class="section">
+                    <div class="section-title">Resolution and Support</div>
+                    <div class="resolution-content">
+                        This case is currently under {{ strtolower($incident->status) }} status. 
+                        Appropriate actions are being taken to address the incident and provide necessary support to the student.
+                    </div>
+                </div> -->
+
+                <div class="acknowledgments">
+                    <strong>Acknowledgments:</strong><br>
+                    This case has been documented through the Guidance Office Case Resolution System. 
+                    All necessary actions are being taken to address the concerns raised and provide appropriate support to the student.
+                </div>
+
+                <div class="signatures-container">
+                    <div class="signature-block">
+                        <div class="signature-space"></div>
+                        <div class="signature-name">{{ $incident->student }}</div>
+                        <div class="signature-line"></div>
+                        <div class="signature-label">Student Signature</div>
+                    </div>
+                    
+                    <div class="signature-block">
+                        <div class="signature-space"></div>
+                        <div class="signature-name"></div>
+                        <div class="signature-line"></div>
+                        <div class="signature-label">Parent/Guardian Signature</div>
+                    </div>
+                </div>
+
+                <div class="counselor-signature">
+                    <div class="counselor-signature-block">
+                        <div class="signature-space"></div>
+                        <div class="signature-name">{{ $currentUser->name ?? '' }}</div>
+                        <div class="signature-line"></div>
+                        <div class="signature-label">School Counselor</div>
+                    </div>
+                </div>
+
+                <div class="footer">
+                    <p>Report generated on {{ \Carbon\Carbon::now()->format('m/d/Y') }} by the School Guidance Office</p>
+                    <p>This document is confidential and intended only for the parties involved</p>
+                </div>
+            </div>
+        @endforeach
+
+        @php
+            $hasFilters = !empty($filters['status']) || !empty($filters['date_from']) || !empty($filters['date_to']) || !empty($filters['search']);
+        @endphp
+
+        @if ($hasFilters)
+            <div class="filters-summary" style="page-break-before: always; margin-top: 40px;">
+                <strong>Report Filters Applied:</strong><br>
+                @if (!empty($filters['status']))
+                    Status: {{ ucfirst($filters['status']) }}<br>
                 @endif
                 @if (!empty($filters['date_from']) || !empty($filters['date_to']))
-                    <div class="filter-item">
-                        <strong>Date Range:</strong>
-                        <span>
-                            @if (!empty($filters['date_from']) && !empty($filters['date_to']))
-                                {{ \Carbon\Carbon::parse($filters['date_from'])->format('M d, Y') }} - {{ \Carbon\Carbon::parse($filters['date_to'])->format('M d, Y') }}
-                            @elseif (!empty($filters['date_from']))
-                                From {{ \Carbon\Carbon::parse($filters['date_from'])->format('M d, Y') }}
-                            @elseif (!empty($filters['date_to']))
-                                Until {{ \Carbon\Carbon::parse($filters['date_to'])->format('M d, Y') }}
-                            @endif
-                        </span>
-                    </div>
+                    Date Range: 
+                    @if (!empty($filters['date_from']) && !empty($filters['date_to']))
+                        {{ \Carbon\Carbon::parse($filters['date_from'])->format('M d, Y') }} - {{ \Carbon\Carbon::parse($filters['date_to'])->format('M d, Y') }}
+                    @elseif (!empty($filters['date_from']))
+                        From {{ \Carbon\Carbon::parse($filters['date_from'])->format('M d, Y') }}
+                    @elseif (!empty($filters['date_to']))
+                        Until {{ \Carbon\Carbon::parse($filters['date_to'])->format('M d, Y') }}
+                    @endif
+                    <br>
                 @endif
                 @if (!empty($filters['search']))
-                    <div class="filter-item">
-                        <strong>Search:</strong>
-                        <span>{{ $filters['search'] }}</span>
-                    </div>
+                    Search: {{ $filters['search'] }}<br>
                 @endif
+                <strong>Total Cases:</strong> {{ $incidents->count() }}
             </div>
-        </div>
-    @endif
-
-    <div class="summary">
-        <p><strong>Total Incidents:</strong> {{ $incidents->count() }}</p>
-    </div>
-
-    @if ($incidents->count() > 0)
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 5%;">No.</th>
-                    <th style="width: 20%;">Student</th>
-                    <th style="width: 20%;">Incident Type</th>
-                    <th style="width: 15%;">Date Reported</th>
-                    <th style="width: 12%;">Status</th>
-                    <th style="width: 12%;">Priority</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($incidents as $index => $incident)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $incident->student }}</td>
-                        <td>{{ $incident->incident_type }}</td>
-                        <td>{{ \Carbon\Carbon::parse($incident->date_reported)->format('M d, Y') }}</td>
-                        <td>
-                            <span class="badge badge-{{ strtolower($incident->status) }}">
-                                {{ ucfirst($incident->status) }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge badge-{{ strtolower($incident->priority) }}">
-                                {{ ucfirst($incident->priority) }}
-                            </span>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+        @endif
     @else
+        <div class="report-header">
+            <div class="report-date">{{ \Carbon\Carbon::now()->format('m/d/y, g:i A') }}</div>
+            <div class="system-name">Guidance Office Case Resolution System</div>
+        </div>
+
+        <div class="main-title">
+            <h1>Guidance Office Case Resolution Report</h1>
+            <p>Immaculate Conception School of Naic Inc.</p>
+            <p>Student Support and Development</p>
+        </div>
+
+        <div class="title-divider"></div>
+
         <div class="no-data">
             <p>No incidents found matching the applied filters.</p>
         </div>
     @endif
-
-    <div class="footer">
-        <p>This is a computer-generated report. No signature required.</p>
-    </div>
 </body>
 </html>
-

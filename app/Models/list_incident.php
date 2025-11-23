@@ -15,7 +15,11 @@ class list_incident extends Model
         'student',
         'incident_type',
         'date_reported',
+        'grade_section',
+        'department',
         'status',
         'priority',
+        'remarks',
+        'student_image',
     ];
 }

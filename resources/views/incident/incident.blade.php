@@ -156,28 +156,47 @@
                                     data-incident-row
                                     data-status="{{ strtolower($incident->status ?? '') }}"
                                     data-date-reported="{{ \Carbon\Carbon::parse($incident->date_reported)->format('Y-m-d') }}"
-                                    data-search="{{ strtolower($incident->student . ' ' . $incident->incident_type . ' ' . $incident->status . ' ' . $incident->priority) }}"
+                                    data-search="{{ strtolower($incident->student . ' ' . ($incident->grade_section ?? '') . ' ' . ($incident->department ?? '') . ' ' . $incident->incident_type . ' ' . $incident->status . ' ' . $incident->priority) }}"
                                 >
                                     <td class="px-3 sm:px-4 py-3 sm:py-4 text-sm text-gray-500 dark:text-gray-400">
                                         {{ ($incidents->currentPage() - 1) * $incidents->perPage() + $index + 1 }}
                                     </td>
                                     <td class="px-3 sm:px-4 py-3 sm:py-4">
-                                        <p class="font-semibold text-sm sm:text-base text-gray-900 dark:text-white break-words">{{ $incident->student }}</p>
+                                        <div class="flex items-center gap-3">
+                                            @if ($incident->student_image)
+                                                <img src="{{ $incident->student_image }}" alt="{{ $incident->student }}" class="h-10 w-10 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700">
+                                            @else
+                                                <div class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                                    <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                    </svg>
+                                                </div>
+                                            @endif
+                                            <div>
+                                                <p class="font-semibold text-sm sm:text-base break-words text-gray-900 dark:text-white">{{ $incident->student }}</p>
+                                                @if ($incident->department)
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $incident->department }}</p>
+                                                @endif
+                                                @if ($incident->grade_section)
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $incident->grade_section }}</p>
+                                                @endif
+                                            </div>
+                                        </div>
                                         <div class="mt-2 md:hidden space-y-1">
                                             <div>
                                                 <span class="text-xs text-gray-500 dark:text-gray-400">Type: </span>
-                                                <span class="text-xs text-gray-700 dark:text-gray-300">{{ $incident->incident_type }}</span>
+                                                <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ $incident->incident_type }}</span>
                                             </div>
                                             <div>
                                                 <span class="text-xs text-gray-500 dark:text-gray-400">Date: </span>
-                                                <span class="text-xs text-gray-700 dark:text-gray-300">{{ \Carbon\Carbon::parse($incident->date_reported)->format('M d, Y') }}</span>
+                                                <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ \Carbon\Carbon::parse($incident->date_reported)->format('M d, Y') }}</span>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-3 sm:px-4 py-3 sm:py-4 hidden md:table-cell">
-                                        <span class="text-sm text-gray-700 dark:text-gray-300 break-words">{{ $incident->incident_type }}</span>
+                                        <span class="text-sm font-bold text-gray-700 dark:text-gray-300 break-words">{{ $incident->incident_type }}</span>
                                     </td>
-                                    <td class="px-3 sm:px-4 py-3 sm:py-4 hidden lg:table-cell text-sm text-gray-600 dark:text-gray-400">
+                                    <td class="px-3 sm:px-4 py-3 sm:py-4 hidden lg:table-cell text-sm font-bold text-gray-600 dark:text-gray-400">
                                         {{ \Carbon\Carbon::parse($incident->date_reported)->format('M d, Y') }}
                                     </td>
                                     <td class="px-3 sm:px-4 py-3 sm:py-4">
@@ -190,7 +209,7 @@
                                             ];
                                             $statusColor = $statusColors[strtolower($incident->status)] ?? 'bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-300';
                                         @endphp
-                                        <span class="inline-flex rounded-full px-2 sm:px-3 py-1 text-xs font-semibold {{ $statusColor }}">
+                                        <span class="inline-flex rounded-full px-2 sm:px-3 py-1 text-xs font-bold {{ $statusColor }}">
                                             {{ ucfirst($incident->status) }}
                                         </span>
                                     </td>
@@ -204,7 +223,7 @@
                                             ];
                                             $priorityColor = $priorityColors[strtolower($incident->priority)] ?? 'bg-gray-100 text-gray-700 dark:bg-gray-500/20 dark:text-gray-300';
                                         @endphp
-                                        <span class="inline-flex rounded-full px-2 sm:px-3 py-1 text-xs font-semibold {{ $priorityColor }}">
+                                        <span class="inline-flex rounded-full px-2 sm:px-3 py-1 text-xs font-bold {{ $priorityColor }}">
                                             {{ ucfirst($incident->priority) }}
                                         </span>
                                     </td>
@@ -212,27 +231,41 @@
                                         <div class="flex items-center gap-2">
                                             <button
                                                 type="button"
-                                                class="edit-incident-btn inline-flex items-center justify-center h-8 w-8 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition"
+                                                class="print-incident-btn inline-flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition shadow-sm"
+                                                data-id="{{ $incident->id }}"
+                                                title="Print"
+                                            >
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="edit-incident-btn inline-flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-lg border border-indigo-200 dark:border-indigo-700 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-500/30 transition shadow-sm"
                                                 data-id="{{ $incident->id }}"
                                                 data-student="{{ $incident->student }}"
                                                 data-incident-type="{{ $incident->incident_type }}"
                                                 data-date-reported="{{ \Carbon\Carbon::parse($incident->date_reported)->format('Y-m-d') }}"
+                                                data-grade-section="{{ $incident->grade_section ?? '' }}"
+                                                data-department="{{ $incident->department ?? '' }}"
                                                 data-status="{{ $incident->status }}"
                                                 data-priority="{{ $incident->priority }}"
+                                                data-remarks="{{ $incident->remarks ?? '' }}"
+                                                data-student-image="{{ $incident->student_image ?? '' }}"
                                                 title="Edit"
                                             >
-                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
                                             </button>
                                             <button
                                                 type="button"
-                                                class="delete-incident-btn inline-flex items-center justify-center h-8 w-8 rounded-lg border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition"
+                                                class="delete-incident-btn inline-flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-lg border border-rose-200 dark:border-rose-700 bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 hover:bg-rose-200 dark:hover:bg-rose-500/30 transition shadow-sm"
                                                 data-id="{{ $incident->id }}"
                                                 data-student="{{ $incident->student }}"
                                                 title="Delete"
                                             >
-                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                             </button>
@@ -264,7 +297,7 @@
     </div>
 
     <x-modal id="add-incident-modal" title="Add New Incident" size="lg">
-        <form id="addIncidentForm" class="space-y-4">
+        <form id="addIncidentForm" class="space-y-4" enctype="multipart/form-data">
             <div class="grid gap-4 sm:grid-cols-2">
                 <label class="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
                     Student Name <span class="text-red-500">*</span>
@@ -287,6 +320,26 @@
                     >
                 </label>
             </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <label class="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    Grade & Section
+                    <input
+                        type="text"
+                        name="grade_section"
+                        class="mt-2 w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        placeholder="e.g., Grade 7 - St. Scholastica"
+                    >
+                </label>
+                <label class="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    Department
+                    <input
+                        type="text"
+                        name="department"
+                        class="mt-2 w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        placeholder="e.g., Junior High School"
+                    >
+                </label>
+            </div>
             <label class="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Incident Type <span class="text-red-500">*</span>
                 <input
@@ -296,6 +349,20 @@
                     class="mt-2 w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
                     placeholder="e.g., Bullying, Harassment, etc."
                 >
+            </label>
+            <label class="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                Student Picture
+                <input
+                    type="file"
+                    name="student_image"
+                    id="addStudentImage"
+                    accept="image/*"
+                    class="mt-2 w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm focus:border-indigo-500 focus:ring-indigo-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-500/20 dark:file:text-indigo-300"
+                >
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Accepted formats: JPG, PNG, GIF (Max: 5MB)</p>
+                <div id="addImagePreview" class="mt-2 hidden">
+                    <img id="addImagePreviewImg" src="" alt="Preview" class="h-24 w-24 object-cover rounded-lg border border-gray-200 dark:border-gray-700">
+                </div>
             </label>
             <div class="grid gap-4 sm:grid-cols-2">
                 <label class="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -346,7 +413,7 @@
     </x-modal>
 
     <x-modal id="edit-incident-modal" title="Edit Incident" size="lg">
-        <form id="editIncidentForm" class="space-y-4">
+        <form id="editIncidentForm" class="space-y-4" enctype="multipart/form-data">
             <input type="hidden" id="editIncidentId" name="id">
             <div class="grid gap-4 sm:grid-cols-2">
                 <label class="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -368,6 +435,28 @@
                         name="date_reported"
                         required
                         class="mt-2 w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    >
+                </label>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <label class="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    Grade & Section
+                    <input
+                        type="text"
+                        id="editGradeSection"
+                        name="grade_section"
+                        class="mt-2 w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        placeholder="e.g., Grade 7 - St. Scholastica"
+                    >
+                </label>
+                <label class="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    Department
+                    <input
+                        type="text"
+                        id="editDepartment"
+                        name="department"
+                        class="mt-2 w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        placeholder="e.g., Junior High School"
                     >
                 </label>
             </div>
@@ -414,6 +503,31 @@
                     </select>
                 </label>
             </div>
+            <label class="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                Student Picture
+                <input
+                    type="file"
+                    name="student_image"
+                    id="editStudentImage"
+                    accept="image/*"
+                    class="mt-2 w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm focus:border-indigo-500 focus:ring-indigo-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-500/20 dark:file:text-indigo-300"
+                >
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Accepted formats: JPG, PNG, GIF (Max: 5MB)</p>
+                <div id="editImagePreview" class="mt-2">
+                    <img id="editImagePreviewImg" src="" alt="Current image" class="h-24 w-24 object-cover rounded-lg border border-gray-200 dark:border-gray-700 hidden">
+                    <p id="editImagePreviewText" class="text-xs text-gray-500 dark:text-gray-400 hidden">No image uploaded</p>
+                </div>
+            </label>
+            <label class="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                Remarks
+                <textarea
+                    id="editRemarks"
+                    name="remarks"
+                    rows="4"
+                    class="mt-2 w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="Enter any additional remarks or notes..."
+                ></textarea>
+            </label>
             <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-end pt-4">
                 <button
                     type="button"

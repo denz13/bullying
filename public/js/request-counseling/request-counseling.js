@@ -3,6 +3,66 @@ document.addEventListener('DOMContentLoaded', () => {
     const rows = document.querySelectorAll('[data-request-row]');
     const emptyState = document.getElementById('requestEmptyState');
     let selectedStatus = 'pending'; // Default to pending
+    let dateFrom = '';
+    let dateTo = '';
+    
+    // Store dates globally for print function access
+    window.requestCounselingDateFrom = dateFrom;
+    window.requestCounselingDateTo = dateTo;
+    
+    // Print button handler function
+    const handlePrint = function(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        const searchInputEl = document.getElementById('requestSearch');
+        const searchTerm = searchInputEl ? searchInputEl.value.trim() : '';
+        
+        // Get current selected status from active filter button or use the variable
+        const activeFilterButton = document.querySelector('.status-filter-option.bg-indigo-50, .status-filter-option.dark\\:bg-indigo-500\\/20');
+        let currentStatus = selectedStatus || '';
+        if (activeFilterButton) {
+            const statusFromButton = activeFilterButton.getAttribute('data-status');
+            if (statusFromButton !== null) {
+                currentStatus = statusFromButton;
+            }
+        }
+        
+        // Build query parameters
+        const params = new URLSearchParams();
+        if (currentStatus) {
+            params.append('status', currentStatus);
+        }
+        if (dateFrom) {
+            params.append('date_from', dateFrom);
+        }
+        if (dateTo) {
+            params.append('date_to', dateTo);
+        }
+        if (searchTerm) {
+            params.append('search', searchTerm);
+        }
+        
+        // Open PDF in new window
+        const url = `/request-counseling/print?${params.toString()}`;
+        window.open(url, '_blank');
+    };
+    
+    // Attach print button handler
+    const printBtn = document.getElementById('printBtn');
+    if (printBtn) {
+        printBtn.addEventListener('click', handlePrint);
+    } else {
+        // Retry after a short delay if button not found
+        setTimeout(() => {
+            const retryPrintBtn = document.getElementById('printBtn');
+            if (retryPrintBtn) {
+                retryPrintBtn.addEventListener('click', handlePrint);
+            }
+        }, 100);
+    }
 
     const filterRows = () => {
         const term = searchInput ? searchInput.value.trim().toLowerCase() : '';
@@ -12,12 +72,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const haystack = row.dataset.search ?? '';
             const searchMatches = !term || haystack.includes(term);
             
-            // Check status filter - default to 'pending' if empty
-            const filterStatus = selectedStatus || 'pending';
-            const rowStatus = row.dataset.status?.toLowerCase() || '';
-            const statusMatches = rowStatus === filterStatus.toLowerCase();
+            // Check status filter - if selectedStatus is empty, show all (All Status)
+            let statusMatches = true;
+            if (selectedStatus) {
+                const rowStatus = row.dataset.status?.toLowerCase() || '';
+                statusMatches = rowStatus === selectedStatus.toLowerCase();
+            }
 
-            const matches = searchMatches && statusMatches;
+            // Check date range filter
+            const rowDate = row.dataset.dateCreated || '';
+            let dateMatches = true;
+            if (dateFrom || dateTo) {
+                if (dateFrom && dateTo) {
+                    dateMatches = rowDate >= dateFrom && rowDate <= dateTo;
+                } else if (dateFrom) {
+                    dateMatches = rowDate >= dateFrom;
+                } else if (dateTo) {
+                    dateMatches = rowDate <= dateTo;
+                }
+            }
+
+            const matches = searchMatches && statusMatches && dateMatches;
             row.style.display = matches ? '' : 'none';
             if (matches) {
                 visibleCount += 1;
@@ -85,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const filterText = button.textContent.trim();
                 const filterBtnText = filterBtn.querySelector('span');
                 if (filterBtnText) {
-                    filterBtnText.textContent = selectedStatus ? filterText : 'Filter';
+                    filterBtnText.textContent = selectedStatus ? filterText : 'All Status';
                 }
             }
 
@@ -101,6 +176,98 @@ document.addEventListener('DOMContentLoaded', () => {
             filterRows();
         });
     });
+
+    // Date range filter with Flatpickr
+    const dateRangeInput = document.getElementById('dateRangePicker');
+    const dateRangeContainer = document.getElementById('dateRangePickerContainer');
+    const clearDateFilterBtn = document.getElementById('clearDateFilter');
+    let flatpickrInstance = null;
+
+    if (dateRangeInput && dateRangeContainer && typeof flatpickr !== 'undefined') {
+        // Find the dropdown container
+        const dropdownContainer = dateRangeInput.closest('[x-data]');
+        
+        flatpickrInstance = flatpickr(dateRangeInput, {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            inline: true,
+            appendTo: dateRangeContainer,
+            onChange: function(selectedDates, dateStr, instance) {
+                if (selectedDates.length === 2) {
+                    dateFrom = selectedDates[0].toISOString().split('T')[0];
+                    dateTo = selectedDates[1].toISOString().split('T')[0];
+                    window.requestCounselingDateFrom = dateFrom;
+                    window.requestCounselingDateTo = dateTo;
+                    
+                    // Update filter button tooltip text
+                    const dateFilterBtn = document.getElementById('dateFilterBtn');
+                    if (dateFilterBtn) {
+                        const dateFilterText = dateFilterBtn.querySelector('#dateFilterText');
+                        if (dateFilterText) {
+                            const fromDate = selectedDates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                            const toDate = selectedDates[1].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                            dateFilterText.textContent = `${fromDate} - ${toDate}`;
+                            dateFilterBtn.setAttribute('title', `${fromDate} - ${toDate}`);
+                        }
+                    }
+
+                    // Close dropdown after a short delay
+                    setTimeout(() => {
+                        if (dropdownContainer && dropdownContainer.__x) {
+                            dropdownContainer.__x.$data.dateFilterOpen = false;
+                        }
+                    }, 500);
+
+                    // Apply filters
+                    filterRows();
+                } else if (selectedDates.length === 1) {
+                    // User is still selecting, don't filter yet
+                    dateFrom = selectedDates[0].toISOString().split('T')[0];
+                    dateTo = '';
+                    window.requestCounselingDateFrom = dateFrom;
+                    window.requestCounselingDateTo = dateTo;
+                } else {
+                    dateFrom = '';
+                    dateTo = '';
+                    window.requestCounselingDateFrom = '';
+                    window.requestCounselingDateTo = '';
+                }
+            }
+        });
+    }
+
+    if (clearDateFilterBtn) {
+        clearDateFilterBtn.addEventListener('click', () => {
+            if (flatpickrInstance) {
+                flatpickrInstance.clear();
+            }
+            dateFrom = '';
+            dateTo = '';
+            window.requestCounselingDateFrom = '';
+            window.requestCounselingDateTo = '';
+            
+            // Reset filter button tooltip text
+            const dateFilterBtn = document.getElementById('dateFilterBtn');
+            if (dateFilterBtn) {
+                const dateFilterText = dateFilterBtn.querySelector('#dateFilterText');
+                if (dateFilterText) {
+                    dateFilterText.textContent = 'Date Range';
+                    dateFilterBtn.setAttribute('title', 'Date Range');
+                }
+            }
+
+            // Close dropdown
+            setTimeout(() => {
+                const dropdown = clearDateFilterBtn?.closest('[x-data]');
+                if (dropdown && dropdown.__x) {
+                    dropdown.__x.$data.dateFilterOpen = false;
+                }
+            }, 150);
+
+            // Apply filters
+            filterRows();
+        });
+    }
 });
 
 // Function to show notification toast

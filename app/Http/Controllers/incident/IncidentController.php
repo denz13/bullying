@@ -5,6 +5,7 @@ namespace App\Http\Controllers\incident;
 use App\Http\Controllers\Controller;
 use App\Models\list_incident;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
@@ -37,39 +38,102 @@ class IncidentController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'student' => ['required', 'string', 'max:255'],
-            'incident_type' => ['required', 'string', 'max:255'],
-            'date_reported' => ['required', 'date'],
-            'status' => ['required', 'string', 'max:50'],
-            'priority' => ['required', 'string', 'max:50'],
-        ]);
+        try {
+            $data = $request->validate([
+                'student' => ['required', 'string', 'max:255'],
+                'incident_type' => ['required', 'string', 'max:255'],
+                'date_reported' => ['required', 'date'],
+                'grade_section' => ['nullable', 'string', 'max:255'],
+                'department' => ['nullable', 'string', 'max:255'],
+                'status' => ['required', 'string', 'max:50'],
+                'priority' => ['required', 'string', 'max:50'],
+                'remarks' => ['nullable', 'string'],
+                'student_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,gif', 'max:5120'],
+            ]);
 
-        list_incident::create($data);
+            // Handle file upload - convert to base64
+            if ($request->hasFile('student_image')) {
+                $file = $request->file('student_image');
+                $imageData = file_get_contents($file->getRealPath());
+                $base64 = base64_encode($imageData);
+                $mimeType = $file->getMimeType();
+                $data['student_image'] = 'data:' . $mimeType . ';base64,' . $base64;
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Incident added successfully.',
-        ]);
+            // Remove remarks if it's empty or null to avoid database issues
+            if (empty($data['remarks'])) {
+                unset($data['remarks']);
+            }
+
+            list_incident::create($data);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Incident added successfully.',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to add incident: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $data = $request->validate([
-            'student' => ['required', 'string', 'max:255'],
-            'incident_type' => ['required', 'string', 'max:255'],
-            'date_reported' => ['required', 'date'],
-            'status' => ['required', 'string', 'max:50'],
-            'priority' => ['required', 'string', 'max:50'],
-        ]);
+        try {
+            $data = $request->validate([
+                'student' => ['required', 'string', 'max:255'],
+                'incident_type' => ['required', 'string', 'max:255'],
+                'date_reported' => ['required', 'date'],
+                'grade_section' => ['nullable', 'string', 'max:255'],
+                'department' => ['nullable', 'string', 'max:255'],
+                'status' => ['required', 'string', 'max:50'],
+                'priority' => ['required', 'string', 'max:50'],
+                'remarks' => ['nullable', 'string'],
+                'student_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,gif', 'max:5120'],
+            ]);
 
-        $incident = list_incident::findOrFail($id);
-        $incident->update($data);
+            $incident = list_incident::findOrFail($id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Incident updated successfully.',
-        ]);
+            // Handle file upload - convert to base64
+            if ($request->hasFile('student_image')) {
+                $file = $request->file('student_image');
+                $imageData = file_get_contents($file->getRealPath());
+                $base64 = base64_encode($imageData);
+                $mimeType = $file->getMimeType();
+                $data['student_image'] = 'data:' . $mimeType . ';base64,' . $base64;
+            }
+
+            // Remove remarks if it's empty or null to avoid database issues
+            if (empty($data['remarks'])) {
+                $data['remarks'] = null;
+            }
+
+            $incident->update($data);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Incident updated successfully.',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update incident: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function destroy($id)
@@ -106,6 +170,8 @@ class IncidentController extends Controller
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('student', 'like', "%{$searchTerm}%")
+                    ->orWhere('grade_section', 'like', "%{$searchTerm}%")
+                    ->orWhere('department', 'like', "%{$searchTerm}%")
                     ->orWhere('incident_type', 'like', "%{$searchTerm}%")
                     ->orWhere('status', 'like', "%{$searchTerm}%")
                     ->orWhere('priority', 'like', "%{$searchTerm}%");
@@ -133,12 +199,46 @@ class IncidentController extends Controller
         $html = view('reports.incident-report', [
             'incidents' => $incidents,
             'filters' => $filters,
+            'currentUser' => Auth::user(),
         ])->render();
 
         $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
-        return $dompdf->stream('incident-report.pdf', ['Attachment' => false]);
+        // Use explicit response headers for better compatibility with hosting environments
+        return response($dompdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="incident-report.pdf"');
+    }
+
+    public function printSingle($id)
+    {
+        $incident = list_incident::findOrFail($id);
+        
+        // Generate PDF
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+        $options->set('defaultFont', 'Arial');
+
+        $dompdf = new Dompdf($options);
+
+        $html = view('reports.incident-report', [
+            'incidents' => collect([$incident]),
+            'filters' => [],
+            'currentUser' => Auth::user(),
+        ])->render();
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $filename = 'incident-report-' . str_replace(' ', '-', strtolower($incident->student)) . '-' . $incident->id . '.pdf';
+        
+        // Use explicit response headers for better compatibility with hosting environments
+        return response($dompdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
     }
 }

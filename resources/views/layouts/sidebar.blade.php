@@ -1,10 +1,22 @@
 @php
-    $navItems = collect(config('navigation.primary', []))->map(function ($item) {
-        $route = $item['route'] ?? null;
-        $url = $route ? route($route) : ($item['url'] ?? '#');
+    $user = auth()->user();
+    $userRole = $user ? ($user->role ?? 'user') : 'user';
+    
+    $navItems = collect(config('navigation.primary', []))
+        ->filter(function ($item) use ($userRole) {
+            // If item has a role requirement, check if user has that role
+            if (isset($item['role'])) {
+                return $userRole === $item['role'];
+            }
+            // If no role requirement, show to everyone
+            return true;
+        })
+        ->map(function ($item) {
+            $route = $item['route'] ?? null;
+            $url = $route ? route($route) : ($item['url'] ?? '#');
 
-        return array_merge($item, ['url' => $url]);
-    });
+            return array_merge($item, ['url' => $url]);
+        });
     $icons = [
         'grid' => '<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75h7.5v7.5h-7.5zM12.75 3.75h7.5v7.5h-7.5zM12.75 12.75h7.5v7.5h-7.5zM3.75 12.75h7.5v7.5h-7.5z" />',
         'flag' => '<path stroke-linecap="round" stroke-linejoin="round" d="M3 21v-6m0 0c3-2 6-2 9 0s6 2 9 0v-9c-3 2-6 2-9 0s-6-2-9 0m0 9V4" />',
@@ -18,12 +30,12 @@
     ];
 @endphp
 
-<aside class="hidden lg:flex lg:flex-col w-72 bg-gradient-to-b from-[#0f2e75] to-[#0b49a0] text-white border-r border-[#0b2d68] px-6 py-8 gap-8 shadow-[8px_0_35px_rgba(15,46,117,0.25)]">
+<aside class="hidden lg:flex lg:flex-col w-72 bg-gradient-to-b from-[#2596be] to-[#2596be] text-white border-r border-[#24DCFF] px-6 py-8 gap-8 shadow-[8px_0_35px_rgba(37,150,190,0.25)]">
     <div class="space-y-4">
         <div class="flex items-center gap-3">
-            <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 border border-white/20 text-lg font-semibold tracking-widest">
-                GO
-            </span>
+            <a href="{{ url('/') }}" class="inline-flex h-16 w-16 items-center justify-center p-0 overflow-hidden">
+                <img src="{{ asset('image/logo.png') }}" alt="Logo" class="h-full w-full object-contain" style="padding: 4px;">
+            </a>
             <div>
                 <a href="{{ url('/') }}" class="text-xl font-semibold tracking-[0.3em] text-white">GUIDANCE</a>
                 <p class="text-xs uppercase tracking-[0.4em] text-white/70">Office</p>
@@ -43,12 +55,12 @@
             @endphp
             <a
                 href="{{ $item['url'] }}"
-                class="flex items-center gap-4 rounded-2xl px-4 py-3 text-sm font-semibold transition
-                       {{ $active ? 'bg-white text-[#0f2e75] shadow-[0_12px_30px_rgba(15,46,117,0.35)]' : 'text-white/70 hover:bg-white/10' }}"
+                class="group flex items-center gap-4 rounded-2xl px-4 py-3.5 text-base font-bold transition-all duration-300
+                       {{ $active ? 'bg-white text-[#2596be] shadow-[0_12px_30px_rgba(37,150,190,0.35)]' : 'text-white hover:bg-white/10' }}"
             >
-                <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/20
-                             {{ $active ? 'bg-[#0f2e75]/10 text-[#0f2e75]' : 'text-white' }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5">
+                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-white/30 transition-all duration-300
+                             {{ $active ? 'bg-[#2596be]/10 text-[#2596be] rotate-12 scale-110' : 'text-white group-hover:rotate-12 group-hover:scale-110' }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" class="h-7 w-7 transition-transform duration-300 {{ $active ? 'animate-pulse' : 'group-hover:animate-bounce' }}">
                         {!! $icons[$item['icon']] !!}
                     </svg>
                 </span>
@@ -59,7 +71,7 @@
 
     <div class="rounded-2xl bg-white/10 border border-white/20 px-4 py-3 text-xs text-white/80 space-y-1">
         <p class="font-semibold text-white tracking-[0.3em] uppercase">Need urgent help?</p>
-        <p class="text-sm font-medium">Call (046) 123-4567 ext. 102</p>
-        <p>Guidance lines are open 7am–7pm.</p>
+        <p class="text-sm font-medium">Call/Text - 09061007363</p>
+        <p class="text-sm font-medium">Email - icsnaic@yahoo.com</p>
     </div>
 </aside>

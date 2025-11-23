@@ -1,10 +1,22 @@
 @php
-    $mobileNavItems = collect(config('navigation.primary', []))->map(function ($item) {
-        $route = $item['route'] ?? null;
-        $url = $route ? route($route) : ($item['url'] ?? '#');
+    $user = auth()->user();
+    $userRole = $user ? ($user->role ?? 'user') : 'user';
+    
+    $mobileNavItems = collect(config('navigation.primary', []))
+        ->filter(function ($item) use ($userRole) {
+            // If item has a role requirement, check if user has that role
+            if (isset($item['role'])) {
+                return $userRole === $item['role'];
+            }
+            // If no role requirement, show to everyone
+            return true;
+        })
+        ->map(function ($item) {
+            $route = $item['route'] ?? null;
+            $url = $route ? route($route) : ($item['url'] ?? '#');
 
-        return array_merge($item, ['url' => $url]);
-    });
+            return array_merge($item, ['url' => $url]);
+        });
 @endphp
 
 <div

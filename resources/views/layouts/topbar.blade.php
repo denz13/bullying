@@ -1,5 +1,6 @@
 @php
     use App\Models\notification;
+    use Illuminate\Support\Facades\Storage;
     
     $user = auth()->user();
     $navItems = collect(config('navigation.primary', []));
@@ -31,6 +32,19 @@
         : collect();
     
     $unreadCount = $unreadNotifications->count();
+    
+    // Convert profile image to base64
+    $profileImageBase64 = null;
+    if ($user && $user->profile_image) {
+        $imagePath = storage_path('app/public/' . $user->profile_image);
+        if (file_exists($imagePath)) {
+            $imageData = file_get_contents($imagePath);
+            $imageInfo = getimagesize($imagePath);
+            $mimeType = $imageInfo['mime'] ?? 'image/png';
+            $base64 = base64_encode($imageData);
+            $profileImageBase64 = 'data:' . $mimeType . ';base64,' . $base64;
+        }
+    }
 @endphp
 
 <header class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-white shadow-[0_10px_30px_rgba(15,46,117,0.08)]">
@@ -208,9 +222,9 @@
                     class="relative rounded-full bg-white p-2 shadow border border-gray-200"
                     @click="profileOpen = !profileOpen"
                 >
-                    @if($user && $user->profile_image)
+                    @if($profileImageBase64)
                         <img 
-                            src="{{ asset('storage/' . $user->profile_image) }}" 
+                            src="{{ $profileImageBase64 }}" 
                             alt="{{ $user->name }}"
                             class="h-5 w-5 rounded-full object-cover"
                         >
@@ -239,9 +253,9 @@
                     class="absolute right-0 mt-3 w-64 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl shadow-indigo-500/10 p-4 space-y-3"
                 >
                     <div class="flex items-center gap-3">
-                        @if($user && $user->profile_image)
+                        @if($profileImageBase64)
                             <img 
-                                src="{{ asset('storage/' . $user->profile_image) }}" 
+                                src="{{ $profileImageBase64 }}" 
                                 alt="{{ $user->name }}"
                                 class="h-12 w-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
                             >

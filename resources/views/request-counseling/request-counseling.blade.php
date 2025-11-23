@@ -3,7 +3,7 @@
 @section('content')
 <div id="toast-container" class="fixed top-6 right-6 z-50 space-y-4 max-w-md"></div>
 
-<section class="w-full px-3 sm:px-4 md:px-6 lg:px-10 py-4 sm:py-6 md:py-8 lg:py-10 space-y-6 md:space-y-8" x-data="requestModalActions()">
+<section class="w-full px-3 sm:px-4 md:px-6 lg:px-10 py-4 sm:py-6 md:py-8 lg:py-10 space-y-6 md:space-y-8" x-data="requestModalActions()" x-id="['request-modal']">
 
     <div class="rounded-2xl md:rounded-3xl border border-gray-200/60 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 sm:p-5 md:p-6 space-y-4 md:space-y-6">
         <div class="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -62,6 +62,64 @@
                         </div>
                     </div>
                 </div>
+                <div class="relative" x-data="{ dateFilterOpen: false }" @click.outside="dateFilterOpen = false">
+                    <button
+                        type="button"
+                        id="dateFilterBtn"
+                        class="relative inline-flex items-center justify-center h-10 w-10 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition group"
+                        @click="dateFilterOpen = !dateFilterOpen"
+                        title="Date Range">
+                        <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                        </svg>
+                        <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50" id="dateFilterTooltip">
+                            <span id="dateFilterText">Date Range</span>
+                        </span>
+                    </button>
+                    <div
+                        x-cloak
+                        x-show="dateFilterOpen"
+                        x-transition:enter="transition ease-out duration-150"
+                        x-transition:enter-start="opacity-0 translate-y-2"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-100"
+                        x-transition:leave-start="opacity-100 translate-y-0"
+                        x-transition:leave-end="opacity-0 translate-y-2"
+                        class="absolute right-0 mt-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg z-10"
+                        @click.stop>
+                        <div class="p-4">
+                            <input
+                                type="text"
+                                id="dateRangePicker"
+                                placeholder="Select date range..."
+                                class="hidden"
+                            >
+                            <div id="dateRangePickerContainer"></div>
+                            <div class="mt-3 flex gap-2">
+                                <button
+                                    type="button"
+                                    id="clearDateFilter"
+                                    class="flex-1 rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                                >
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    id="printBtn"
+                    onclick="handlePrintClick(event)"
+                    class="relative inline-flex items-center justify-center h-10 w-10 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition group"
+                    title="Print">
+                    <svg class="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+                    </svg>
+                    <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                        Print
+                    </span>
+                </button>
             </div>
         </div>
         <div class="border border-gray-100 dark:border-gray-800 rounded-xl sm:rounded-2xl overflow-hidden">
@@ -86,6 +144,7 @@
                                 data-request-row
                                 data-request-id="{{ $request->id }}"
                                 data-status="{{ strtolower($request->status ?? 'pending') }}"
+                                data-date-created="{{ \Carbon\Carbon::parse($request->created_at)->format('Y-m-d') }}"
                                 data-search="{{ strtolower(($request->fullname ?? 'anonymous') . ' ' . ($request->grade_section ?? '') . ' ' . ($request->urgent_level ?? '') . ' ' . ($request->status ?? '') . ' ' . ($request->content ?? '')) }}">
                                 <td class="px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                                     {{ ($requests->currentPage() - 1) * $requests->perPage() + $loop->iteration }}
@@ -143,54 +202,54 @@
                                     {{ optional($request->created_at)->format('M d, Y • h:i A') }}
                                 </td>
                                 <td class="px-3 sm:px-4 py-3 sm:py-4">
-                                    <div class="flex items-center justify-end gap-1 sm:gap-2 flex-wrap">
+                                    <div class="flex items-center justify-end gap-2 flex-wrap">
                                         <button
                                             type="button"
-                                            class="inline-flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-300 transition"
+                                            class="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg border border-blue-200 dark:border-blue-700 bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-500/30 transition shadow-sm"
                                             title="View details"
                                             x-on:click.prevent="openModal('view', @js($request))">
-                                            <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z" />
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z" />
                                             </svg>
                                         </button>
                                         @if (strtolower($request->status ?? 'pending') !== 'approved' && strtolower($request->status ?? 'pending') !== 'completed')
                                             <button
                                                 type="button"
-                                                class="inline-flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 transition"
+                                                class="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg border border-emerald-200 dark:border-emerald-700 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-500/30 transition shadow-sm"
                                                 title="Approve"
                                                 x-on:click.prevent="openModal('approve', @js($request))">
-                                                <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m5 13 4 4L19 7" />
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 13 4 4L19 7" />
                                                 </svg>
                                             </button>
                                             <button
                                                 type="button"
-                                                class="inline-flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-amber-50 text-amber-600 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-300 transition"
+                                                class="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-500/30 transition shadow-sm"
                                                 title="Reject"
                                                 x-on:click.prevent="openModal('reject', @js($request))">
-                                                <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18 18 6M6 6l12 12" />
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12" />
                                                 </svg>
                                             </button>
                                             <button
                                                 type="button"
-                                                class="inline-flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-300 transition"
+                                                class="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg border border-rose-200 dark:border-rose-700 bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 hover:bg-rose-200 dark:hover:bg-rose-500/30 transition shadow-sm"
                                                 title="Delete"
                                                 x-on:click.prevent="openModal('delete', @js($request))">
-                                                <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 7h12m-9 4v6m6-6v6M9 7l1-2h4l1 2" />
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 7h12m-9 4v6m6-6v6M9 7l1-2h4l1 2" />
                                                 </svg>
                                             </button>
                                         @endif
                                         @if (strtolower($request->status ?? 'pending') === 'approved')
                                             <button
                                                 type="button"
-                                                class="inline-flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400 transition"
+                                                class="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg border border-indigo-600 dark:border-indigo-500 bg-indigo-600 dark:bg-indigo-500 text-white hover:bg-indigo-500 dark:hover:bg-indigo-400 transition shadow-sm"
                                                 title="Mark As Completed"
                                                 x-on:click.prevent="openModal('complete', @js($request))">
-                                                <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                                 </svg>
                                             </button>
                                         @endif
@@ -284,8 +343,14 @@
                 <span class="font-semibold text-gray-900 dark:text-gray-100" x-text="$store.requestModal.current?.fullname ?? 'the student'"></span>?
             </p>
             <label class="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                Provide a note (optional)
-                <textarea class="mt-2 w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm focus:border-amber-500 focus:ring-amber-500" rows="4" placeholder="Let the student know why this was rejected"></textarea>
+                Provide a reason <span class="text-red-500">*</span>
+                <textarea 
+                    id="rejectReason"
+                    class="mt-2 w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm focus:border-amber-500 focus:ring-amber-500" 
+                    rows="4" 
+                    placeholder="Please provide a reason for rejection..."
+                    required
+                ></textarea>
             </label>
             <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-end">
                 <button type="button" class="inline-flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition" x-on:click="closeModal('reject')">
@@ -347,8 +412,55 @@
 </section>
 @endsection
 
+@push('head')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+@endpush
+
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+<script>
+    // Global print handler function
+    function handlePrintClick(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        const searchInput = document.getElementById('requestSearch');
+        const searchTerm = searchInput ? searchInput.value.trim() : '';
+        
+        // Get current selected status from active filter button
+        const activeFilterButton = document.querySelector('.status-filter-option.bg-indigo-50, .status-filter-option.dark\\:bg-indigo-500\\/20');
+        let currentStatus = '';
+        if (activeFilterButton) {
+            currentStatus = activeFilterButton.getAttribute('data-status') || '';
+        }
+        
+        // Get date range from global variables
+        const dateFrom = window.requestCounselingDateFrom || '';
+        const dateTo = window.requestCounselingDateTo || '';
+        
+        // Build query parameters
+        const params = new URLSearchParams();
+        if (currentStatus) {
+            params.append('status', currentStatus);
+        }
+        if (dateFrom) {
+            params.append('date_from', dateFrom);
+        }
+        if (dateTo) {
+            params.append('date_to', dateTo);
+        }
+        if (searchTerm) {
+            params.append('search', searchTerm);
+        }
+        
+        // Open PDF in new window
+        const url = `/request-counseling/print?${params.toString()}`;
+        window.open(url, '_blank');
+    }
+</script>
 <script src="{{ asset('js/request-counseling/request-counseling.js') }}" defer></script>
 <script>
     document.addEventListener('alpine:init', () => {
@@ -357,6 +469,9 @@
         });
         Alpine.data('requestModalActions', () => ({
             openModal(type, request) {
+                console.log('openModal called:', type, request);
+                
+                // Store the request data
                 Alpine.store('requestModal').current = request;
                 
                 // Clear remarks field when opening complete modal
@@ -369,8 +484,22 @@
                     }, 100);
                 }
                 
+                // Clear reject reason field when opening reject modal
+                if (type === 'reject') {
+                    setTimeout(() => {
+                        const rejectReasonInput = document.getElementById('rejectReason');
+                        if (rejectReasonInput) {
+                            rejectReasonInput.value = '';
+                        }
+                    }, 100);
+                }
+                
+                // Dispatch event only once
+                const modalId = `${type}-request-modal`;
+                console.log('Opening modal:', modalId);
                 window.dispatchEvent(new CustomEvent('open-modal', {
-                    detail: `${type}-request-modal`
+                    detail: modalId,
+                    bubbles: true
                 }));
             },
             closeModal(type) {
@@ -434,6 +563,73 @@
                             window.showNotificationToast('danger', 'Error', 'An error occurred while approving the request. Please try again.');
                         }
                     }
+                } else if (type === 'reject') {
+                    // Get the note/remarks from the textarea in the reject modal
+                    const noteTextarea = document.getElementById('rejectReason');
+                    const note = noteTextarea ? noteTextarea.value.trim() : '';
+
+                    // Validate that note is provided
+                    if (!note) {
+                        if (window.showNotificationToast) {
+                            window.showNotificationToast('warning', 'Reason Required', 'Please provide a reason for rejection.');
+                        }
+                        if (noteTextarea) {
+                            noteTextarea.focus();
+                        }
+                        return;
+                    }
+                    try {
+                        const response = await fetch(`/request-counseling/${request.id}/reject`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                            },
+                            body: JSON.stringify({ note: note || 'No reason provided' }),
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            // Show success toast
+                            if (window.showNotificationToast) {
+                                window.showNotificationToast('success', 'Request Rejected', data.message || 'Counseling request has been rejected successfully.');
+                            }
+
+                            // Update the status in the table row
+                            const row = document.querySelector(`[data-request-id="${request.id}"]`);
+                            if (row) {
+                                const statusCell = row.querySelector('[data-status-cell]');
+                                if (statusCell) {
+                                    statusCell.innerHTML = '<span class="inline-flex rounded-full px-2 sm:px-3 py-1 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300">Rejected</span>';
+                                }
+
+                                // Update data-status attribute
+                                row.setAttribute('data-status', 'rejected');
+                                
+                                // Update search data attribute
+                                const searchData = row.getAttribute('data-search') || '';
+                                row.setAttribute('data-search', searchData.replace(/\b(pending|Pending|approved|Approved)\b/g, 'rejected'));
+                            }
+
+                            this.closeModal(type);
+
+                            // Reload page after 1 second to reflect changes
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            // Show error toast
+                            if (window.showNotificationToast) {
+                                window.showNotificationToast('danger', 'Error', data.message || 'Failed to reject the request. Please try again.');
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error rejecting request:', error);
+                        if (window.showNotificationToast) {
+                            window.showNotificationToast('danger', 'Error', 'An error occurred while rejecting the request. Please try again.');
+                        }
+                    }
                 } else if (type === 'complete') {
                     const remarksInput = document.getElementById('completeRemarks');
                     const remarks = remarksInput ? remarksInput.value.trim() : '';
@@ -482,6 +678,61 @@
                         console.error('Error completing request:', error);
                         if (window.showNotificationToast) {
                             window.showNotificationToast('danger', 'Error', 'An error occurred while marking the request as completed. Please try again.');
+                        }
+                    }
+                } else if (type === 'delete') {
+                    try {
+                        const response = await fetch(`/request-counseling/${request.id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                            },
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            // Show success toast
+                            if (window.showNotificationToast) {
+                                window.showNotificationToast('success', 'Request Deleted', data.message || 'Counseling request has been deleted successfully.');
+                            }
+
+                            // Remove the row from the table
+                            const row = document.querySelector(`[data-request-id="${request.id}"]`);
+                            if (row) {
+                                row.style.transition = 'opacity 0.3s ease';
+                                row.style.opacity = '0';
+                                setTimeout(() => {
+                                    row.remove();
+                                    
+                                    // Check if table is empty
+                                    const tbody = document.querySelector('#requestTable tbody');
+                                    if (tbody && tbody.children.length === 0) {
+                                        const emptyState = document.getElementById('requestEmptyState');
+                                        if (emptyState) {
+                                            emptyState.classList.remove('hidden');
+                                        }
+                                    }
+                                }, 300);
+                            }
+
+                            this.closeModal(type);
+
+                            // Reload page after 1 second to reflect changes
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            // Show error toast
+                            if (window.showNotificationToast) {
+                                window.showNotificationToast('danger', 'Error', data.message || 'Failed to delete the request. Please try again.');
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error deleting request:', error);
+                        if (window.showNotificationToast) {
+                            window.showNotificationToast('danger', 'Error', 'An error occurred while deleting the request. Please try again.');
                         }
                     }
                 } else {

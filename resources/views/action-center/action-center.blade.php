@@ -51,7 +51,7 @@
         @click.stop
     >
         <!-- Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-[#0f2e75] to-[#0b49a0] text-white">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-b from-[#2596be] to-[#2596be] text-white">
             <div>
                 <h2 class="text-lg font-semibold">Action Center</h2>
                 <p class="text-xs text-white/70">Quick actions and pending items</p>
@@ -149,12 +149,12 @@
     </div>
 </div>
 
-<!-- Approve Request Modal -->
-<x-modal id="approve-request-modal" title="Approve Counseling Request" size="sm" zIndex="z-[10000]">
+<!-- Approve Request Modal (Action Center) -->
+<x-modal id="action-center-approve-request-modal" title="Approve Counseling Request" size="sm" zIndex="z-[10000]">
     <div class="space-y-4 text-sm text-gray-600 dark:text-gray-300" x-data="{ requestData: null }" x-init="
         requestData = window.approveRequestData;
         window.addEventListener('open-modal', (e) => {
-            if (e.detail === 'approve-request-modal') {
+            if (e.detail === 'action-center-approve-request-modal') {
                 requestData = window.approveRequestData;
             }
         });
@@ -167,7 +167,7 @@
             <button
                 type="button"
                 class="inline-flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-                @click="window.dispatchEvent(new CustomEvent('close-modal', { detail: 'approve-request-modal' }))"
+                @click="window.dispatchEvent(new CustomEvent('close-modal', { detail: 'action-center-approve-request-modal' }))"
             >
                 Cancel
             </button>
@@ -182,14 +182,14 @@
     </div>
 </x-modal>
 
-<!-- Reject Request Modal -->
-<x-modal id="reject-request-modal" title="Reject Counseling Request" size="lg" zIndex="z-[10000]">
+<!-- Reject Request Modal (Action Center) -->
+<x-modal id="action-center-reject-request-modal" title="Reject Counseling Request" size="lg" zIndex="z-[10000]">
     <div class="space-y-4 text-sm text-gray-600 dark:text-gray-300" x-data="{ requestData: null }" x-init="
         requestData = window.rejectRequestData;
         window.addEventListener('open-modal', (e) => {
-            if (e.detail === 'reject-request-modal') {
+            if (e.detail === 'action-center-reject-request-modal') {
                 requestData = window.rejectRequestData;
-                const reasonInput = document.getElementById('rejectReason');
+                const reasonInput = document.getElementById('actionCenterRejectReason');
                 if (reasonInput) {
                     reasonInput.value = '';
                 }
@@ -203,7 +203,7 @@
         <label class="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
             Reason for rejection <span class="text-red-500">*</span>
             <textarea
-                id="rejectReason"
+                id="actionCenterRejectReason"
                 class="mt-2 w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm focus:border-amber-500 focus:ring-amber-500"
                 rows="4"
                 placeholder="Please provide a reason why this request is being rejected..."
@@ -214,7 +214,7 @@
             <button
                 type="button"
                 class="inline-flex items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-                @click="window.dispatchEvent(new CustomEvent('close-modal', { detail: 'reject-request-modal' }))"
+                @click="window.dispatchEvent(new CustomEvent('close-modal', { detail: 'action-center-reject-request-modal' }))"
             >
                 Cancel
             </button>

@@ -23,7 +23,7 @@ return [
             'route' => 'resolve-cases',
         ],
         [
-            'label' => 'Incidents',
+            'label' => 'Incident Report',
             'icon' => 'exclamation-triangle',
             'route' => 'incident',
         ],
@@ -31,6 +31,12 @@ return [
             'label' => 'Schedule Calendar',
             'icon' => 'calendar',
             'route' => 'schedule-calendar',
+        ],
+        [
+            'label' => 'User Management',
+            'icon' => 'users',
+            'route' => 'user-management',
+            'role' => 'admin', // Only visible to admin users
         ],
     ],
 ];

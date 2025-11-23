@@ -90,9 +90,9 @@ document.addEventListener('alpine:init', () => {
             // Store request data globally
             window.approveRequestData = request;
             
-            // Open modal
+            // Open modal (Action Center version)
             window.dispatchEvent(new CustomEvent('open-modal', {
-                detail: 'approve-request-modal'
+                detail: 'action-center-approve-request-modal'
             }));
         },
         rejectRequest(request) {
@@ -105,14 +105,14 @@ document.addEventListener('alpine:init', () => {
             window.rejectRequestData = request;
             
             // Clear previous reason
-            const reasonInput = document.getElementById('rejectReason');
+            const reasonInput = document.getElementById('actionCenterRejectReason');
             if (reasonInput) {
                 reasonInput.value = '';
             }
             
-            // Open modal
+            // Open modal (Action Center version)
             window.dispatchEvent(new CustomEvent('open-modal', {
-                detail: 'reject-request-modal'
+                detail: 'action-center-reject-request-modal'
             }));
         }
     }));
@@ -148,9 +148,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         window.showNotificationToast('success', 'Request Approved', data.message || 'Counseling request has been approved successfully.');
                     }
                     
-                    // Close modal
+                    // Close modal (Action Center version)
                     window.dispatchEvent(new CustomEvent('close-modal', {
-                        detail: 'approve-request-modal'
+                        detail: 'action-center-approve-request-modal'
                     }));
                     
                     // Reload page after 1 second to reflect changes
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const reasonInput = document.getElementById('rejectReason');
+            const reasonInput = document.getElementById('actionCenterRejectReason');
             const reason = reasonInput ? reasonInput.value.trim() : '';
 
             if (!reason) {
@@ -214,9 +214,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         window.showNotificationToast('success', 'Request Rejected', data.message || 'Counseling request has been rejected.');
                     }
                     
-                    // Close modal
+                    // Close modal (Action Center version)
                     window.dispatchEvent(new CustomEvent('close-modal', {
-                        detail: 'reject-request-modal'
+                        detail: 'action-center-reject-request-modal'
                     }));
                     
                     // Reload page after 1 second to reflect changes

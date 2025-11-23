@@ -177,6 +177,49 @@ document.addEventListener('DOMContentLoaded', () => {
     // Apply initial filter
     filterRows();
 
+    // Image preview for add form
+    const addStudentImageInput = document.getElementById('addStudentImage');
+    if (addStudentImageInput) {
+        addStudentImageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('addImagePreview');
+            const previewImg = document.getElementById('addImagePreviewImg');
+            
+            if (file && preview && previewImg) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else if (preview) {
+                preview.classList.add('hidden');
+            }
+        });
+    }
+
+    // Image preview for edit form
+    const editStudentImageInput = document.getElementById('editStudentImage');
+    if (editStudentImageInput) {
+        editStudentImageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const previewImg = document.getElementById('editImagePreviewImg');
+            const previewText = document.getElementById('editImagePreviewText');
+            
+            if (file && previewImg) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove('hidden');
+                    if (previewText) {
+                        previewText.classList.add('hidden');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
     // Print button handler
     const printBtn = document.getElementById('printBtn');
     if (printBtn) {
@@ -351,7 +394,7 @@ document.addEventListener('alpine:init', () => {
 });
 
 // Function to open edit modal
-window.openEditModal = function(id, student, incidentType, dateReported, status, priority) {
+window.openEditModal = function(id, student, incidentType, dateReported, gradeSection, department, status, priority, remarks, studentImage) {
     document.getElementById('editIncidentId').value = id;
     document.getElementById('editStudent').value = student;
     document.getElementById('editIncidentType').value = incidentType;
@@ -371,8 +414,32 @@ window.openEditModal = function(id, student, incidentType, dateReported, status,
     }
     document.getElementById('editDateReported').value = formattedDate;
     
+    document.getElementById('editGradeSection').value = gradeSection || '';
+    document.getElementById('editDepartment').value = department || '';
     document.getElementById('editStatus').value = status;
     document.getElementById('editPriority').value = priority;
+    document.getElementById('editRemarks').value = remarks || '';
+    
+    // Handle student image preview (base64)
+    const editImagePreviewImg = document.getElementById('editImagePreviewImg');
+    const editImagePreviewText = document.getElementById('editImagePreviewText');
+    if (studentImage && studentImage.trim() !== '') {
+        if (editImagePreviewImg) {
+            // Base64 data URI is stored directly in the database
+            editImagePreviewImg.src = studentImage;
+            editImagePreviewImg.classList.remove('hidden');
+        }
+        if (editImagePreviewText) {
+            editImagePreviewText.classList.add('hidden');
+        }
+    } else {
+        if (editImagePreviewImg) {
+            editImagePreviewImg.classList.add('hidden');
+        }
+        if (editImagePreviewText) {
+            editImagePreviewText.classList.remove('hidden');
+        }
+    }
     
     window.dispatchEvent(new CustomEvent('open-modal', {
         detail: 'edit-incident-modal'
@@ -444,10 +511,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const student = this.getAttribute('data-student');
             const incidentType = this.getAttribute('data-incident-type');
             const dateReported = this.getAttribute('data-date-reported');
+            const gradeSection = this.getAttribute('data-grade-section') || '';
+            const department = this.getAttribute('data-department') || '';
             const status = this.getAttribute('data-status');
             const priority = this.getAttribute('data-priority');
+            const remarks = this.getAttribute('data-remarks') || '';
+            const studentImage = this.getAttribute('data-student-image') || '';
             
-            openEditModal(id, student, incidentType, dateReported, status, priority);
+            openEditModal(id, student, incidentType, dateReported, gradeSection, department, status, priority, remarks, studentImage);
         });
     });
 
@@ -458,6 +529,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const student = this.getAttribute('data-student');
             
             openDeleteModal(id, student);
+        });
+    });
+
+    // Print buttons
+    document.querySelectorAll('.print-incident-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            
+            // Open PDF in new window for single incident
+            const url = `/incident/${id}/print`;
+            window.open(url, '_blank');
         });
     });
 });
@@ -471,19 +553,29 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
             
             const formData = new FormData(addForm);
-            const data = Object.fromEntries(formData.entries());
 
             try {
                 const response = await fetch('/incident', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                        'Accept': 'application/json',
                     },
-                    body: JSON.stringify(data),
+                    body: formData,
                 });
 
-                const result = await response.json();
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                let result;
+                
+                if (contentType && contentType.includes('application/json')) {
+                    result = await response.json();
+                } else {
+                    // If not JSON, it's likely an HTML error page
+                    const text = await response.text();
+                    console.error('Server returned non-JSON response:', text);
+                    throw new Error('Server error: Invalid response format');
+                }
 
                 if (response.ok && result.success) {
                     // Show success toast
@@ -496,8 +588,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         detail: 'add-incident-modal'
                     }));
 
-                    // Reset form
+                    // Reset form and image preview
                     addForm.reset();
+                    const addImagePreview = document.getElementById('addImagePreview');
+                    const addImagePreviewImg = document.getElementById('addImagePreviewImg');
+                    if (addImagePreview) addImagePreview.classList.add('hidden');
+                    if (addImagePreviewImg) addImagePreviewImg.src = '';
 
                     // Reload page after 1 second to show new incident
                     setTimeout(() => {
@@ -505,14 +601,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 1000);
                 } else {
                     // Show error toast
+                    const errorMessage = result.message || (result.errors ? Object.values(result.errors).flat().join(', ') : 'Failed to add incident. Please try again.');
                     if (window.showNotificationToast) {
-                        window.showNotificationToast('danger', 'Error', result.message || 'Failed to add incident. Please try again.');
+                        window.showNotificationToast('danger', 'Error', errorMessage);
                     }
                 }
             } catch (error) {
                 console.error('Error adding incident:', error);
                 if (window.showNotificationToast) {
-                    window.showNotificationToast('danger', 'Error', 'An error occurred while adding the incident. Please try again.');
+                    window.showNotificationToast('danger', 'Error', error.message || 'An error occurred while adding the incident. Please try again.');
                 }
             }
         });
@@ -525,20 +622,33 @@ document.addEventListener('DOMContentLoaded', () => {
             event.preventDefault();
             
             const formData = new FormData(editForm);
-            const data = Object.fromEntries(formData.entries());
-            const id = data.id;
+            const id = formData.get('id');
+
+            // Add _method for Laravel to recognize PUT request
+            formData.append('_method', 'PUT');
 
             try {
                 const response = await fetch(`/incident/${id}`, {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                        'Accept': 'application/json',
                     },
-                    body: JSON.stringify(data),
+                    body: formData,
                 });
 
-                const result = await response.json();
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                let result;
+                
+                if (contentType && contentType.includes('application/json')) {
+                    result = await response.json();
+                } else {
+                    // If not JSON, it's likely an HTML error page
+                    const text = await response.text();
+                    console.error('Server returned non-JSON response:', text);
+                    throw new Error('Server error: Invalid response format');
+                }
 
                 if (response.ok && result.success) {
                     // Show success toast
@@ -557,14 +667,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 1000);
                 } else {
                     // Show error toast
+                    const errorMessage = result.message || (result.errors ? Object.values(result.errors).flat().join(', ') : 'Failed to update incident. Please try again.');
                     if (window.showNotificationToast) {
-                        window.showNotificationToast('danger', 'Error', result.message || 'Failed to update incident. Please try again.');
+                        window.showNotificationToast('danger', 'Error', errorMessage);
                     }
                 }
             } catch (error) {
                 console.error('Error updating incident:', error);
                 if (window.showNotificationToast) {
-                    window.showNotificationToast('danger', 'Error', 'An error occurred while updating the incident. Please try again.');
+                    window.showNotificationToast('danger', 'Error', error.message || 'An error occurred while updating the incident. Please try again.');
                 }
             }
         });
