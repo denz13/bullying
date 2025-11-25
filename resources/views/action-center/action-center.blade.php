@@ -51,7 +51,7 @@
         @click.stop
     >
         <!-- Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-b from-[#2596be] to-[#2596be] text-white">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-[#2c3e50] to-[#1a252f] text-white">
             <div>
                 <h2 class="text-lg font-semibold">Action Center</h2>
                 <p class="text-xs text-white/70">Quick actions and pending items</p>

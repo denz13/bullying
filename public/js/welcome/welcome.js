@@ -9,15 +9,25 @@ function toggleMobileNav() {
 
 // Show/hide sections based on navigation - Global function
 function showSection(sectionId) {
-    // Hide hero section
-    const heroSection = document.getElementById('home');
-    if (heroSection) {
-        if (sectionId === 'home') {
-            heroSection.style.display = 'block';
-            heroSection.classList.remove('hidden');
-        } else {
-            heroSection.style.display = 'none';
-            heroSection.classList.add('hidden');
+    // Handle home section
+    const homeSection = document.getElementById('home');
+    const homeContent = document.getElementById('home-content');
+    
+    if (sectionId === 'home') {
+        if (homeSection) {
+            homeSection.style.display = 'block';
+            homeSection.classList.remove('hidden');
+        }
+        if (homeContent) {
+            homeContent.style.display = 'block';
+        }
+    } else {
+        if (homeSection) {
+            homeSection.style.display = 'none';
+            homeSection.classList.add('hidden');
+        }
+        if (homeContent) {
+            homeContent.style.display = 'none';
         }
     }
     
@@ -84,7 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
         experienceForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const formData = new FormData(experienceForm);
-            if (!experienceForm.querySelector('#anonymous').checked) {
+            const anonymousCheckbox = experienceForm.querySelector('#is_anonymously');
+            if (!anonymousCheckbox || !anonymousCheckbox.checked) {
                 formData.set('is_anonymously', '0');
             }
             const submitButton = experienceForm.querySelector('button[type="submit"]');
@@ -156,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     icon: 'success',
                     title: 'Support Request Received',
                     text: 'Thank you for reaching out. Our counseling team will contact you based on the urgency level you selected.',
-                    footer: 'If this is an emergency, please contact school administration immediately at (046) 123-4567 ext. 101.',
+                    footer: 'If this is an emergency, please contact school administration immediately at 09061007363.',
                     confirmButtonColor: '#1a4b84',
                 });
             } catch (error) {
@@ -174,30 +185,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Navigation click handlers (desktop)
+    // Smooth scrolling for navigation links
     document.querySelectorAll('nav a[href^="#"]').forEach((anchor) => {
         anchor.addEventListener('click', (event) => {
             event.preventDefault();
             const targetId = anchor.getAttribute('href').substring(1);
-            showSection(targetId);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
         });
     });
-    
-    // Handle hash changes in URL
-    function handleHashChange() {
-        const hash = window.location.hash.substring(1);
-        if (hash) {
-            showSection(hash);
-        } else {
-            showSection('home');
-        }
-    }
-    
-    // Check initial hash on page load
-    handleHashChange();
-    
-    // Listen for hash changes
-    window.addEventListener('hashchange', handleHashChange);
 
     // Feature card animation
     const featureCards = document.querySelectorAll('.feature-card');
@@ -220,61 +221,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     animateCards();
     window.addEventListener('scroll', animateCards);
-
-    // Hero Carousel
-    const heroSlides = document.querySelectorAll('.hero-slide');
-    const carouselIndicators = document.querySelectorAll('.carousel-indicator');
-    let currentSlide = 0;
-    let carouselInterval;
-
-    function showSlide(index) {
-        heroSlides.forEach((slide, i) => {
-            slide.classList.remove('active');
-            if (i === index) {
-                slide.classList.add('active');
-            }
+    
+    // FAQ functionality
+    document.querySelectorAll('.faq-question').forEach(question => {
+        question.addEventListener('click', function() {
+            const faqItem = this.parentElement;
+            faqItem.classList.toggle('active');
         });
-        
-        carouselIndicators.forEach((indicator, i) => {
-            indicator.classList.remove('active');
-            if (i === index) {
-                indicator.classList.add('active');
-            }
-        });
-    }
-
-    function nextSlide() {
-        currentSlide = (currentSlide + 1) % heroSlides.length;
-        showSlide(currentSlide);
-    }
-
-    function startCarousel() {
-        carouselInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
-    }
-
-    function stopCarousel() {
-        clearInterval(carouselInterval);
-    }
-
-    // Initialize carousel
-    if (heroSlides.length > 0) {
-        startCarousel();
-        
-        // Indicator click handlers
-        carouselIndicators.forEach((indicator, index) => {
-            indicator.addEventListener('click', () => {
-                currentSlide = index;
-                showSlide(currentSlide);
-                stopCarousel();
-                startCarousel(); // Restart carousel
-            });
-        });
-        
-        // Pause on hover
-        const heroCarousel = document.querySelector('.hero-carousel');
-        if (heroCarousel) {
-            heroCarousel.addEventListener('mouseenter', stopCarousel);
-            heroCarousel.addEventListener('mouseleave', startCarousel);
-        }
-    }
+    });
 });

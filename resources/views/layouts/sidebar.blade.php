@@ -30,7 +30,7 @@
     ];
 @endphp
 
-<aside class="hidden lg:flex lg:flex-col w-72 bg-gradient-to-b from-[#2596be] to-[#2596be] text-white border-r border-[#24DCFF] px-6 py-8 gap-8 shadow-[8px_0_35px_rgba(37,150,190,0.25)]">
+<aside class="hidden lg:flex lg:flex-col w-72 bg-gradient-to-r from-[#2c3e50] to-[#1a252f] text-white border-r border-[#24DCFF] px-6 py-8 gap-8 shadow-[8px_0_35px_rgba(37,150,190,0.25)]">
     <div class="space-y-4">
         <div class="flex items-center gap-3">
             <a href="{{ url('/') }}" class="inline-flex h-16 w-16 items-center justify-center p-0 overflow-hidden">
